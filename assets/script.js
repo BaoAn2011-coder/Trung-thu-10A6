@@ -352,36 +352,43 @@ scene.add(lanternsGroup);
 const lanterns = [];
 const interactiveObjects = [];
 
-const wishList = [
-  {
-    text: "Chúc cậu và gia đình một mùa Trung Thu đoàn viên, tràn ngập niềm vui và hạnh phúc!",
-    img: "./assets/1.jpg",
-  },
-  {
-    text: "Cầu chúc cho mọi nguyện ước của cậu đêm nay sẽ trở thành hiện thực.",
-    img: "./assets/2.jpg",
-  },
-  {
-    text: "Trăng tròn ấm áp, chúc tình cậu và tình yêu của chúng ta mãi bền chặt.",
-    img: "./assets/3.jpg",
-  },
-  {
-    text: "Chúc cậu luôn giữ được tâm hồn trong trẻo, yêu đời như ánh trăng rằm.",
-    img: "./assets/1.jpg",
-  },
-  {
-    text: "Trung Thu bình an, vạn sự như ý, công danh thăng tiến rực rỡ!",
-    img: "./assets/2.jpg",
-  },
-  {
-    text: "Chúc riêng cậu một đêm trăng thật lãng mạn và ngọt ngào.",
-    img: "./assets/3.jpg",
-  },
-  {
-    text: "Sức khỏe dồi dào, tâm an yên, miệng luôn mỉm cười rạng rỡ.",
-    img: "./assets/1.jpg",
-  },
+// DANH SÁCH 22 CÂU HỎI THEO ĐÚNG TRÌNH TỰ (KHÔNG KÈM ĐÁP ÁN)
+const questionList = [
+  "Đèn gì chỉ thắp một đêm rằm, sáng rực trời đêm?",
+  "Bánh gì tròn như trăng, nhân ngọt, nhân mặn đều có?",
+  "Con gì ngồi ngắm trăng dưới gốc cây đa?",
+  "Ai bay lên cung trăng ôm cây quế?",
+  "Cái gì càng ăn càng bé lại?",
+  "Tròn như cái mẹt, treo trên trời, rằm thì sáng nhất?",
+  "Màu vàng, treo cao, tối mới xuất hiện, không cần điện?",
+  "Tròn như mâm, sáng như đèn, treo trên trời ngắm cả đêm. Là gì?",
+  "Vàng óng, tròn xoe, nhân thập cẩm, trứng muối ở giữa. Là gì?",
+  "Múa đầu sư tử, lắc lư trên phố, trống đánh tùng tùng. Là gì?",
+  "Bé cầm que tre, giấy dán màu, có đuôi dài bay lơ lửng. Là gì?",
+  "Mùa thu đến, trẻ con rước đèn, rước đi rước lại quanh sân. Là gì?",
+  "Ngọt thơm, bổ đôi ra chia đều cho cả lớp. Là gì?",
+  "Hình con vật, treo lủng lẳng, trẻ con kéo đi khắp nơi. Là gì?",
+  "Đêm rằm, chị Hằng ngồi trên đó, có chú Cuội bên cạnh. Là gì?",
+  "Cũng gọi là \"bánh\", cũng tròn xoe, nhưng không ăn được mà chỉ để nhìn lên trời đêm rằm. Là gì?",
+  "Cánh thì không có, bay tận cung trăng, rời nhà đi suốt quanh năm suốt tháng chẳng chịu về. Là ai?",
+  "Mặt thì tròn trĩnh sáng ngời, đêm nay xuất hiện người người đều trông, đến khi trời sáng lại mất tiêu. Là gì?",
+  "Không phải đầu bếp mà thích làm bánh, không phải ca sĩ mà thích múa lân, rủ cả xóm đi chơi đêm rằm. Là ai?",
+  "Đèn gì không thắp bằng dầu, không dùng pin sạc, mà xòe 5 cánh lung linh sắc màu?",
+  "Thân em bằng giấy bao mỏng manh, bên trong thắp nến chạy quanh cả làng. Là gì?",
+  "Tròn xinh như một quả cầu, đem chia cho lớp ngọt ngào thơm tho, vừa có lòng đỏ lại vừa có vắt chanh (lá chanh). Là gì?",
 ];
+
+// Lời chúc màn cuối cùng (Hiển thị khi bừng sáng đèn lồng & ngôi sao)
+const finaleWishData = {
+  badge: "ĐÈN LỒNG BỪNG SÁNG",
+  title: "Đêm Hội Trăng Rằm 10A6",
+  text: "Chúc tập thể A6 có một Tết Trung Thu siêu vui vẻ, bùng nổ và đoàn kết nhé!",
+  tag: "TẬP THỂ 10A6 BÙNG NỔ & ĐOÀN KẾT",
+  img: "./assets/1.jpg",
+};
+
+let currentQuestionIndex = 0;
+let isFinaleActive = false;
 
 function createLanternTexture() {
   const canvas = document.createElement("canvas");
@@ -462,15 +469,11 @@ for (let i = 0; i < lanternCount; i++) {
 
   lantern.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
 
-  const wishData = wishList[Math.floor(Math.random() * wishList.length)];
-
   lantern.userData = {
     speedY: 0.008 + Math.random() * 0.012,
     swingSpeed: 0.8 + Math.random() * 1.2,
     initialX: lantern.position.x,
     initialZ: lantern.position.z,
-    wish: wishData.text,
-    imgUrl: wishData.img,
     id: i,
   };
 
@@ -580,11 +583,187 @@ let targetCamTarget = null;
 let selectedLantern = null;
 
 const wishModal = document.getElementById("wishModal");
-const wishText = document.getElementById("wishText");
+const wishCard = document.getElementById("wishCard");
+const quizBadge = document.getElementById("quizBadge");
+const wishTitle = document.getElementById("wishTitle");
 const wishImage = document.getElementById("wishImage");
+const wishText = document.getElementById("wishText");
+const wishTag = document.getElementById("wishTag");
 const closeWishBtn = document.getElementById("closeWishBtn");
+const prevQuizBtn = document.getElementById("prevQuizBtn");
+const nextQuizBtn = document.getElementById("nextQuizBtn");
+const resetCamBtn = document.getElementById("reset-cam-btn");
 
 let pointerDownPos = { x: 0, y: 0 };
+
+function activateGrandFinale() {
+  if (isFinaleActive) return;
+  isFinaleActive = true;
+
+  // Bừng sáng toàn bộ lồng đèn trong không gian 3D
+  lanterns.forEach((lantern) => {
+    if (lantern.children[0] && lantern.children[0].material) {
+      lantern.children[0].material.emissiveIntensity = 3.0;
+      lantern.children[0].material.emissive.setHex(0xffaa22);
+    }
+    if (lantern.children[3]) {
+      lantern.children[3].scale.set(6.5, 6.5, 1);
+      lantern.children[3].material.opacity = 1.0;
+    }
+  });
+
+  // Tăng cường ánh sáng rực rỡ toàn cảnh
+  treeLight.intensity = 6.0;
+  treeLight.distance = 100;
+  treeLight.color.setHex(0xffd700);
+
+  warmLight.intensity = 5.0;
+  warmLight.distance = 70;
+  warmLight.color.setHex(0xff7700);
+
+  ambientLight.intensity = 2.8;
+
+  // Bừng sáng các ngôi sao lấp lánh trên bầu trời
+  if (starMat) {
+    starMat.size = 0.9;
+    starMat.opacity = 1.0;
+    starMat.color.setHex(0xfffae0);
+  }
+
+  // Bắn liên tiếp các chùm pháo hoa rực rỡ quanh hòn đảo
+  for (let i = 0; i < 14; i++) {
+    setTimeout(() => {
+      const angle = (i / 14) * Math.PI * 2;
+      const dist = 7 + Math.random() * 15;
+      const x = Math.cos(angle) * dist;
+      const z = Math.sin(angle) * dist;
+      const y = 4 + Math.random() * 14;
+      createFirework(new THREE.Vector3(x, y, z));
+    }, i * 200);
+  }
+}
+
+function resetGrandFinale() {
+  if (!isFinaleActive) return;
+  isFinaleActive = false;
+
+  lanterns.forEach((lantern) => {
+    if (lantern.children[0] && lantern.children[0].material) {
+      lantern.children[0].material.emissiveIntensity = 0.7;
+      lantern.children[0].material.emissive.setHex(0xff7700);
+    }
+    if (lantern.children[3]) {
+      lantern.children[3].scale.set(3.2, 3.2, 1);
+      lantern.children[3].material.opacity = 0.7;
+    }
+  });
+
+  treeLight.intensity = 2.5;
+  treeLight.distance = 45;
+  treeLight.color.setHex(0xffb6c1);
+
+  warmLight.intensity = 2.0;
+  warmLight.distance = 30;
+  warmLight.color.setHex(0xffaa33);
+
+  ambientLight.intensity = 1.4;
+
+  if (starMat) {
+    starMat.size = 0.4;
+    starMat.opacity = 0.7;
+    starMat.color.setHex(0xffffff);
+  }
+}
+
+function updateQuizDisplay() {
+  if (currentQuestionIndex < questionList.length) {
+    // Hiển thị câu hỏi 1 -> 22
+    resetGrandFinale();
+    if (wishCard) wishCard.classList.remove("finale-glow");
+
+    if (quizBadge) quizBadge.textContent = `Câu ${currentQuestionIndex + 1} / ${questionList.length}`;
+    if (wishTitle) wishTitle.textContent = `Câu Đố Trung Thu #${currentQuestionIndex + 1}`;
+    if (wishText) wishText.textContent = questionList[currentQuestionIndex];
+    if (wishTag) wishTag.textContent = "Đố Vui Trung Thu 10A6";
+    if (wishImage) wishImage.src = `./assets/${(currentQuestionIndex % 3) + 1}.jpg`;
+
+    if (prevQuizBtn) {
+      prevQuizBtn.style.opacity = currentQuestionIndex === 0 ? "0.35" : "1";
+      prevQuizBtn.style.pointerEvents = currentQuestionIndex === 0 ? "none" : "auto";
+    }
+
+    if (nextQuizBtn) {
+      if (currentQuestionIndex === questionList.length - 1) {
+        nextQuizBtn.innerHTML = `Bừng Sáng Lời Chúc A6 <i class="fas fa-sparkles"></i>`;
+      } else {
+        nextQuizBtn.innerHTML = `Câu tiếp theo <i class="fas fa-chevron-right"></i>`;
+      }
+    }
+  } else {
+    // Sau khi trải qua hết câu số 22 -> Màn bừng sáng đèn lồng / ngôi sao và hiện lời chúc A6
+    if (wishCard) wishCard.classList.add("finale-glow");
+    if (quizBadge) quizBadge.textContent = finaleWishData.badge;
+    if (wishTitle) wishTitle.textContent = finaleWishData.title;
+    if (wishText) wishText.textContent = finaleWishData.text;
+    if (wishTag) wishTag.textContent = finaleWishData.tag;
+    if (wishImage) wishImage.src = finaleWishData.img;
+
+    if (prevQuizBtn) {
+      prevQuizBtn.style.opacity = "1";
+      prevQuizBtn.style.pointerEvents = "auto";
+    }
+
+    if (nextQuizBtn) {
+      nextQuizBtn.innerHTML = `Chơi lại từ đầu <i class="fas fa-redo"></i>`;
+    }
+
+    activateGrandFinale();
+  }
+}
+
+function focusLantern(lantern) {
+  selectedLantern = lantern;
+  const lPos = lantern.position;
+  createFirework(lPos);
+
+  const offset = new THREE.Vector3()
+    .subVectors(camera.position, lPos)
+    .normalize()
+    .multiplyScalar(5.5);
+  targetCamPos = new THREE.Vector3().addVectors(lPos, offset);
+  targetCamTarget = lPos.clone();
+}
+
+function showNextQuestion() {
+  if (currentQuestionIndex < questionList.length) {
+    currentQuestionIndex++;
+  } else {
+    // Đang ở màn lời chúc cuối cùng và bấm tiếp -> Chơi lại từ đầu
+    currentQuestionIndex = 0;
+  }
+  updateQuizDisplay();
+
+  const targetLantern = lanterns[currentQuestionIndex % lanterns.length];
+  if (targetLantern) {
+    focusLantern(targetLantern);
+  }
+
+  wishModal.classList.add("active");
+}
+
+function showPrevQuestion() {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    updateQuizDisplay();
+
+    const targetLantern = lanterns[currentQuestionIndex % lanterns.length];
+    if (targetLantern) {
+      focusLantern(targetLantern);
+    }
+
+    wishModal.classList.add("active");
+  }
+}
 
 function onPointerDown(event) {
   pointerDownPos.x =
@@ -594,7 +773,7 @@ function onPointerDown(event) {
 }
 
 function onPointerUp(event) {
-  if (event.target.closest(".top-bar") || event.target.closest(".wish-modal"))
+  if (event.target.closest(".top-bar") || event.target.closest(".wish-card"))
     return;
 
   const clientX =
@@ -612,6 +791,12 @@ function onPointerUp(event) {
   );
   if (distMoved > 8) return;
 
+  // Nếu click vào nền mờ ngoài modal
+  if (wishModal.classList.contains("active") && event.target === wishModal) {
+    closeWishCard(event);
+    return;
+  }
+
   mouse.x = (clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(clientY / window.innerHeight) * 2 + 1;
 
@@ -620,24 +805,12 @@ function onPointerUp(event) {
 
   if (intersects.length > 0) {
     const hitMesh = intersects[0].object;
-    selectedLantern = hitMesh.userData.parentLantern || hitMesh.parent;
-    const lPos = selectedLantern.position;
-
-    createFirework(lPos);
-
-    const offset = new THREE.Vector3()
-      .subVectors(camera.position, lPos)
-      .normalize()
-      .multiplyScalar(5.5);
-    targetCamPos = new THREE.Vector3().addVectors(lPos, offset);
-    targetCamTarget = lPos.clone();
-
-    wishText.textContent = `"${selectedLantern.userData.wish}"`;
-    wishImage.src = selectedLantern.userData.imgUrl;
-
-    setTimeout(() => {
-      wishModal.classList.add("active");
-    }, 300);
+    const targetLantern = hitMesh.userData.parentLantern || hitMesh.parent;
+    focusLantern(targetLantern);
+    showNextQuestion();
+  } else if (!wishModal.classList.contains("active")) {
+    // Nếu modal đang đóng và click vào màn hình -> tiến tới câu hỏi tiếp theo
+    showNextQuestion();
   }
 }
 
@@ -648,6 +821,25 @@ function resetCamera() {
   targetCamPos = DEFAULT_CAM_POS.clone();
   targetCamTarget = DEFAULT_CAM_TARGET.clone();
   selectedLantern = null;
+}
+
+if (resetCamBtn) {
+  resetCamBtn.addEventListener("click", resetCamera);
+  resetCamBtn.addEventListener("touchend", resetCamera);
+}
+
+if (nextQuizBtn) {
+  nextQuizBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showNextQuestion();
+  });
+}
+
+if (prevQuizBtn) {
+  prevQuizBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showPrevQuestion();
+  });
 }
 
 function closeWishCard(e) {
@@ -666,9 +858,26 @@ wishModal.addEventListener("click", (e) => {
   if (e.target === wishModal) closeWishCard(e);
 });
 
+// Điều khiển bằng bàn phím: Space / Mũi tên phải / Enter chuyển câu đố
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeWishCard();
+  if (e.key === "Escape") {
+    closeWishCard();
+  } else if (
+    e.key === " " ||
+    e.key === "ArrowRight" ||
+    e.key === "Enter" ||
+    e.key === "PageDown"
+  ) {
+    e.preventDefault();
+    showNextQuestion();
+  } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+    e.preventDefault();
+    showPrevQuestion();
+  }
 });
+
+// Khởi tạo nội dung câu đố đầu tiên
+updateQuizDisplay();
 
 // AUDIO
 const bgm = document.getElementById("bgm");

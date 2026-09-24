@@ -1,0 +1,8 @@
+{
+  "name": "Trung Thu 10A6",
+  "description": "Bộ câu đố vui Trung Thu và lời chúc ý nghĩa dành tặng tập thể lớp 10A6 trong không gian 3D tương tác sống động.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
